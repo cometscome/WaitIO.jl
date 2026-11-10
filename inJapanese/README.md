@@ -169,6 +169,18 @@ WaitIO.check_library(verbose=true)
 詳細は[設定と共有プロジェクト](CONFIGURATION.md)、
 対応するライブラリの条件は[互換性の説明](../docs/COMPILER_FREE.md)を参照してください。
 
+## 実行できるサンプル
+
+[実行例と起動手順](../examples/README.md)には、次のプログラムと期待される結果を載せています。
+
+- [配列の送受信](../examples/exchange.jl)：非同期通信を開始し、完了後に値を確認します。
+- [集合通信](../examples/collectives.jl)：配信、合計、収集・分配、可変長の収集を試します。
+- [独自型の転送](../examples/objects.jl)：行列と辞書を含む構造体を送ります。
+- [C側のプログラム](../examples/exchange.c)：Juliaの配列送受信例と接続します。
+
+各側で1プロセスを起動し、一組のジョブで一つの例を実行してください。
+`test/native/` のスクリプトは広範囲の診断用で、入門用の例とは分けています。
+
 ## 非同期通信
 
 通常の WaitIO ジョブ設定とランチャーを使い、全参加ジョブを起動します。

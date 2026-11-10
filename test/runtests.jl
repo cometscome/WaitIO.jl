@@ -14,4 +14,5 @@ include("configuration.jl")
     end
 end
 include("processes.jl")
+include("examples.jl")
 include("unit.jl")

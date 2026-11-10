@@ -8,6 +8,10 @@ For independent C/C and mixed C/Julia comparisons, use the
 capabilities before choosing tests; these broad diagnostics may exercise
 operations unavailable in that installation.
 
+The templates select the development installation under `/work/share/waitio-rt/opt/waitio`,
+with NVIDIA 24.9/HPC-X 24.9 on G and Intel 2023.2.0/MPI 2021.10.0 on C.
+For introductory programs, use the [examples guide](../../../examples/README.md).
+
 1. Create a fresh shared run directory. Copy this package into `source/` there,
    excluding `.git`, `unused`, and site-local `LocalPreferences.toml`.
    Instantiate `source/` with Julia 1.12.6 before submitting jobs. Retain the
@@ -39,7 +43,7 @@ numeric types, reduction operations, sparse displacements, large all-to-all
 messages, and raw request-array guards. The job scripts set `CC`, `CXX`, and
 `MPICC` to nonexistent compiler paths. Both use `source/Project.toml`; writable
 depots and configuration files are separate. Setup uses `use_system_library`
-with an explicit variant and output file. A fresh process then checks that the
+with the `miyabi-dev-g` / `miyabi-dev-c` aliases and separate output files. A fresh process then checks that the
 correct file is selected and the other CPU's configuration is rejected before
 library loading. Project/manifest checksums must remain unchanged.
 

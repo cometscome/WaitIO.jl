@@ -53,8 +53,8 @@ context of heterogeneous application coupling. The wider workshop uses Miyabi
 for CUDA-Q and QC–HPC exercises. The event page also provides separate hybrid-environment
 materials and recording links; recordings were not independently reviewed here.
 
-This is a useful bridge from WaitIO concepts to a Miyabi deployment. It does not
-describe WaitIO.jl's `miyabi_compat` option, which is implemented in this repository.
+Use this material to understand WaitIO deployment on Miyabi. For the Julia API
+and site aliases, follow this package's [README](../README.md).
 
 ### NCTS winter school — National Taiwan University, 2025-02-17–18
 

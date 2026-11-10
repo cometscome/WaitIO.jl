@@ -5,7 +5,7 @@ WaitIO.jlでは計算コードと実行環境の設定を分けます。Miyabi�
 
 ## 初期設定
 
-実行する環境で、対応するMPIとWaitIOのモジュールを読み込んでください。
+実行する環境で、[日本語README](README.md#システム名を選んで設定する)に従ってMPIモジュールとライブラリの検索パスを設定してください。
 Juliaを `--project=/path/to/project` で起動し、次のように設定します。
 
 ```julia
@@ -44,14 +44,12 @@ G側では次を一度実行します。
 ```julia
 using WaitIO
 WaitIO.use_system_library(
-    library_dir = ENV["WAITIO_LIB"],
-    include_dir = ENV["WAITIO_INC"],
-    variant = "nvidia",
+    "miyabi-dev-g";
     config_file = "config/miyabi-g.toml",
 )
 ```
 
-C側では `variant="intel"`、`config_file="config/miyabi-c.toml"` として実行します。
+C側では `"miyabi-dev-c"`、`config_file="config/miyabi-c.toml"` として実行します。
 既存ファイルの置換には `force=true` が必要です。二つのジョブから同じ設定ファイルを
 上書きする運用は避けてください。
 

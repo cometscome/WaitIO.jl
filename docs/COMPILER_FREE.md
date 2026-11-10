@@ -1,8 +1,9 @@
-# Using WaitIO without a C compiler
+# Library compatibility and configuration
 
-WaitIO.jl calls the installed WaitIO and MPI shared libraries.
-There is no adapter build, compiler subprocess, or adapter cache in the package.
-Julia's own JIT still compiles Julia code. The native WaitIO installation is required.
+WaitIO.jl calls the WaitIO and MPI shared libraries installed on the target system.
+Setup checks their CPU architecture and application binary interface (ABI) before
+communication. The site aliases in the [README](../README.md#choose-a-site-alias)
+provide settings for Miyabi and Wisteria. Use explicit paths for other installations.
 
 ```julia
 using WaitIO
@@ -12,8 +13,6 @@ WaitIO.configure!(
     include_dir="/site/waitio/include",
 )
 info = WaitIO.check_library()
-@assert info.abi["implementation"] == "julia"
-@assert !info.abi["compiler_invoked"]
 println(info.abi["recognized_profile"], ": ", info.abi["request_bytes"], " bytes")
 ```
 
@@ -30,9 +29,8 @@ when its matching headers identify a reviewed layout. The recorded installations
 | `miyabi-88` | 88 / 8 bytes | Miyabi Intel and NVIDIA |
 | `miyabi-dev-360` | 360 / 8 bytes | Miyabi development Intel and NVIDIA, November 10, 2026 |
 
-The larger Wisteria request is treated as a distinct ABI, not as a corrupted or
-incorrect version of the older Miyabi layout. The names above are local profile
-identifiers, not an assertion about an upstream semantic version number.
+Each profile describes a distinct request layout. Profile names are local
+identifiers, independent of upstream version numbers.
 Profiles currently cover little-endian LP64 Linux on x86_64 and aarch64.
 
 Setting `abi_profile` to one of these identifiers optionally pins a layout;
@@ -54,9 +52,10 @@ with `abi_profile="/absolute/path/profile.toml"`. It must record `machine`
 `waitio.h`, `waitio_mpi.h`, and `waitio-lib.h`. Library and header hashes must match
 exactly, even in diagnostic mode. Establish the layout from the actual ABI before
 creating this file; adding bytes without knowing the correct array stride is unsafe.
-A custom profile is an explicit assertion by its author, not automatic ABI verification.
+The profile author must independently verify the layout; matching hashes alone
+cannot establish that the recorded sizes and alignment are correct.
 
-## What moved to Julia
+## Runtime behavior
 
 - Request storage is zeroed native allocation with the profile's size. Raw request
   arrays use that exact stride; requests remain at stable addresses until completion.

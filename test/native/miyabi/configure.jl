@@ -1,8 +1,7 @@
 using WaitIO, TOML
-role, variant = ARGS
+role = only(ARGS)
 config=WaitIO.use_system_library(
-    library_dir=ENV["WAITIO_LIB"],variant=variant,
-    include_dir=ENV["WAITIO_INC"],
+    "miyabi-dev-$role";
     config_file="config-$role.toml")
 WaitIO.check_library(require=[:core])
 println("Julia=",VERSION," arch=",Sys.ARCH)

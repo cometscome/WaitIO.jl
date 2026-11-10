@@ -1,16 +1,12 @@
 # WaitIO.jl 日本語ガイド
 
-0.2.0からモジュール名は `WaitIO` です。既定のJulia実装ではCコンパイルは不要です。
-設定とABIの識別方法は[日本語README](README.md)を参照してください。
-
-
 WaitIO.jl は WaitIO を使った通信を Julia から扱うパッケージです。
 数値配列の送受信に加え、Julia の独自型、辞書、文字列も転送できます。
 非同期通信では要求オブジェクトを返し、通信が終わるまで必要な配列を保持します。
 
 このガイドは Julia のプログラムに WaitIO を組み込む人向けです。
-MPI.jl との対応、開発者提供の Julia ラッパーからの移行、ライブラリの設定を説明します。
-実装と検証の基準日は 2026年10月28日です。
+MPI.jl との対応、配列と独自型の転送、ライブラリの設定を説明します。
+実行できるサンプルと起動手順は[実行例](../examples/README.md)にあります。
 
 ## 1. WaitIO.jl の役割
 
@@ -28,10 +24,9 @@ MPI.jl は API 設計の参考にしています。
 WaitIO.jl は MPI.jl に依存しておらず、両者の通信形式や型にも互換性はありません。
 WaitIO が内部で使う MPI は、実行環境が提供する MPI です。
 
-## 2. MPI.jl を参考にして追加した機能
+## 2. MPI.jl との対応
 
-開発者提供の Julia ラッパーには、初期化、ランク取得、送受信、待機、終了などの関数がありました。
-WaitIO.jl では要求を通信ごとのオブジェクトとして扱い、複数の通信を同時に開始できるようにしました。
+WaitIO.jl は要求を通信ごとのオブジェクトとして扱います。複数の通信を同時に開始できます。
 利用側で共有の要求領域を使い回す必要はありません。
 
 通信中の Julia 配列はパッケージが保持します。
@@ -70,27 +65,9 @@ MPI.jl の送受信とオブジェクト転送の仕様は、
 オブジェクトの一斉配信と収集は、
 [Collective communication](https://juliaparallel.org/MPI.jl/stable/reference/collective/) を参考にしています。
 
-## 3. 開発者提供の Julia API から移行する
+## 3. 配列の一部を送る
 
-開発者提供の `waitio-multilang/WAITIO.jl` にある 10 関数の機能は、新 API に対応させています。
-関数名と引数は変更しているため、古いコードの `include` だけを置き換える使い方はできません。
-とくに、旧 API の小文字 `isend` と新 API の小文字 `isend` は役割が異なります。
-
-| 開発者提供の関数 | WaitIO.jl での書き方 |
-|---|---|
-| `create_universe(grp)` | `Init()` の後に `Comm_world()` |
-| `create_universe_pbhead(grp)` | `Init()` の後に `Comm_pbheads(; gid=1)` |
-| `group_rank(grp, rank)` | `Comm_rank(comm)` が整数を返します |
-| `group_size(grp, size)` | `Comm_size(comm)` が整数を返します |
-| `pb_rank(rank)` | `PB_rank()` が整数を返します |
-| `pb_size(size)` | `PB_size()` が整数を返します |
-| `wait(req)` | `Wait(req)`。Julia に制御を返しながら待つ場合は `wait(req)` |
-| `isend(grp, dst, buf, len, tag, req)` | `Isend(buf, comm; dest=dst, tag=tag)` |
-| `irecv(grp, src, buf, len, tag, req)` | `Irecv!(buf, comm; source=src, tag=tag)` |
-| `finalize()` | `Finalize()` |
-
-新 API の `Isend` / `Irecv!` は要求オブジェクトを返します。
-要求領域やバイト数を引数に渡す必要はありません。
+`Isend` / `Irecv!` は要求オブジェクトを返します。
 配列の一部を転送する場合は、要素数とオフセットを `Buffer` で指定します。
 
 ```julia
@@ -102,20 +79,20 @@ WaitIO.Wait(request)
 この例では先頭から 20 要素を飛ばした位置から 100 要素を送ります。
 `count` と `offset` はバイト数ではなく要素数です。
 
-低水準 API は今回の公開 C ヘッダーにある 80 関数を対象にしています。
+低水準 API には、対応するWaitIOのCヘッダーに基づく80関数のラッパーがあります。
 この件数には大文字・小文字の別名や補助関数も含まれます。
 80 種類の通信方式があるという意味ではありません。
-Julia 専用の `_1` 付き関数とグローバルな `juliacomm` は、新 API の基礎に使っていません。
+利用できる関数は導入済みのWaitIOに依存します。
 
 ## 4. インストールとライブラリの指定
 
 ### 4.1 パッケージを読み込む
 
-プライベートリポジトリへのアクセス権がある環境で、次を実行します。
+GitHubのリポジトリからインストールします。
 
 ```julia
 using Pkg
-Pkg.add(url="git@github.com:cometscome/WAITIO.jl.git")
+Pkg.add(url="https://github.com/cometscome/WaitIO.jl.git")
 ```
 
 開発用のチェックアウトを使う場合は、代わりに `Pkg.develop` を指定します。
@@ -130,30 +107,28 @@ WaitIOと対応するMPIの実行環境を先に選んでください。
 
 ### 4.2 ライブラリとヘッダーを設定する
 
+対象システムでMPIモジュールと環境変数を用意してから設定します。
+[日本語README](README.md#システム名を選んで設定する)に各システムの手順があります。
+次はMiyabi-Gで開発版を選び、共有プロジェクト用の設定を保存する例です。
+
 ```julia
 using WaitIO
-WaitIO.use_system_library(
-    libwaitio = "/site/waitio/lib/libwaitio_intel.so",
-    libwaitio_mpi = "/site/waitio/lib/libwaitio_mpi_intel.so",
-    include_dir = "/site/waitio/include",
-)
+WaitIO.use_system_library("miyabi-dev-g"; config_file="config/miyabi-g.toml")
 ```
 
-パスは実行する計算ノードから参照できる絶対パスに置き換えてください。
+C側では `miyabi-dev-c` と `config/miyabi-c.toml` を使います。
+Wisteriaでは `wisteria-odyssey` と `wisteria-aquarius` を選び、設定ファイルも分けます。
+保存後は新しいJuliaプロセスでアプリケーションを起動してください。
+
+任意の導入先には `library_dir`・`include_dir`・`variant`、または二つのライブラリの絶対パスを指定できます。
 `libwaitio_mpi` はWaitIOの集合通信ライブラリで、MPI本体の `libmpi.so` とは異なります。
-`include_dir` には `waitio.h`、`waitio_mpi.h`、`waitio-lib.h` が必要です。
+ヘッダーには `waitio.h`、`waitio_mpi.h`、`waitio-lib.h` が必要です。
 
-ヘッダーとライブラリのハッシュでABIを識別します。
-記録済みのWisteria版は352バイト、Miyabi版は88バイトの要求構造体を使います。
-未知の構造体配置は拒否し、Cコンパイルへ自動で切り替えることもありません。
-`allow_unverified_abi=true` は既知のヘッダーと未確認のライブラリを調査するための指定で、
-互換性を保証するものではありません。
-
-サイトの設定はライブラリの場所とABIを選びます。通信関数をJulia実装へ置き換えることはありません。
-旧設定の `miyabi_compat`・`native_fixes` は警告を出して無視します。
-独自の通信手順が必要な場合は、参加者間で合意したうえで `WaitIO.Extensions` を明示して使います。
-
-詳しくは[実装と検証範囲](../docs/COMPILER_FREE.md)を参照してください。
+ヘッダーとライブラリの組み合わせでABIを識別します。要求構造体のサイズは、
+Wisteria版が352バイト、Miyabiの従来版が88バイト、開発版が360バイトです。
+既知のヘッダー配置に一致する再ビルド版は受け付けます。未知の配置には確認済みのカスタムプロファイルが必要です。
+`allow_unverified_abi` は旧設定の読み込み用に残っていますが、検査結果を変えません。
+詳しくは[ライブラリの互換性](../docs/COMPILER_FREE.md)を参照してください。
 
 ### 4.3 保存した設定と環境変数を使う
 
@@ -190,11 +165,12 @@ export WAITIO_JL_INCLUDE_DIR=/site/waitio/include
 
 ```julia
 WaitIO.configuration_info()         # ライブラリを読み込まずに設定と取得元を確認
-WaitIO.check_library(require=[:all], verbose=true) # 通信を開始せず、ABI と関数シンボルを検査
+WaitIO.check_library(verbose=true) # 通信を開始せず、ABIと基本関数を検査
 WaitIO.library_info()               # 選択したファイル、要求サイズ、別名の解決結果
 WaitIO.capabilities()               # 関数シンボルの有無
 ```
 
+`require=[:all]` を指定すると80関数すべてを要求するため、一部の関数がない導入版ではエラーになります。
 シンボルが存在することと、その機能の動作確認が済んでいることは別です。
 動作確認の範囲は [READMEの動作確認と制約](README.md#動作確認と制約) に記載しています。
 
@@ -256,8 +232,6 @@ end
 型が所属するモジュールもそろえます。
 同じ名前の `struct` を別のモジュールに定義しても、同じ型にはなりません。
 Julia と依存パッケージのバージョンもそろえて実行するのが基本です。
-Miyabiでは、Julia 1.12.6が送った形式30のデータを1.11.2（形式26）が読めずに停止しました。
-数値配列の通信はこのバージョン差でも成功しています。
 型の定義変更やパッケージ更新によって、保存済みのバイト列を復元できなくなる場合があります。
 互換性の条件は [Julia の Serialization](https://docs.julialang.org/en/v1/stdlib/Serialization/) に従います。
 
@@ -344,7 +318,7 @@ results = WaitIO.gather((rank=rank, loss=local_loss), comm; root=0)
 
 ### 6.5 転送形式と上限
 
-WaitIO の公開 C API には、未受信メッセージの長さを調べる Probe がありません。
+対応するWaitIOのC API には、未受信メッセージの長さを調べる Probe がありません。
 そのため WaitIO.jl は 16 byte のヘッダーで形式と長さを知らせてから本体を送ります。
 ヘッダーの形式識別子は `WJLOBJ02`、長さはlittle-endianのUInt64です。
 ヘッダーと本体を同じタグで順に送り、同じ宛先・タグへの連続送信も受け付けます。
@@ -385,8 +359,7 @@ any/some 系が返す添字は 1 始まりです。
 受信配列の内容を読むのも完了後です。
 パッケージによる保持は GC から守るためのもので、利用側の書換えを防ぐ仕組みではありません。
 
-`Wait(req)` は、配列要求では C の待機関数を呼びます。
-`wait(req)` と all/any/some 系の待機は Test を繰り返し、Julia に制御を返します。
+`Wait(req)`、`wait(req)`、all/any/some 系の待機はTestを繰り返し、Juliaに制御を返します。
 通信処理を別スレッドで進める専用の処理はありません。
 
 ## 8. 数値配列の集合通信

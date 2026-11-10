@@ -53,7 +53,13 @@ Julia peers with matching type definitions and compatible Julia versions.
 
 Keep the main README and contribution instructions in English. Put Japanese
 documentation under `inJapanese/` and check Japanese edits with yomiyasu. Update
-both READMEs when setup or public behavior changes. Keep internal validation reports and progress slides outside the public repository,
+both READMEs when setup or public behavior changes. Apply the same editorial
+principles to English: preserve facts, conditions, and uncertainty; make the actor
+and action clear; remove repetition and unsupported claims; and describe current
+usage without carrying forward obsolete implementation details. Review English
+as English prose; Japanese lint results do not validate English wording.
+
+Keep internal validation reports and progress slides outside the public repository,
 including its Git history. Document supported behavior and limitations for users.
 
 WaitIO.jl is MIT-licensed; the external WaitIO and MPI installations have their

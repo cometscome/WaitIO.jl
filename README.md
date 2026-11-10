@@ -84,9 +84,10 @@ The API follows the naming and buffer conventions of
 | Complete requests | `MPI.Waitall(requests)` | `WaitIO.Waitall(requests)` |
 | Reduce across ranks | `MPI.Allreduce!(src, dst, MPI.SUM, comm)` | `WaitIO.Allreduce!(src, dst, WaitIO.SUM, comm)` |
 
-This is API familiarity, not a drop-in implementation of MPI.jl or the entire MPI
-standard. WaitIO communicators and requests belong to WaitIO. Ranks and PB IDs
-start at **0**; Julia array indices start at **1**. MPI.jl is not a dependency.
+WaitIO.jl uses familiar MPI.jl names, but the packages are not interchangeable.
+WaitIO has its own communicator and request types and supports a subset of MPI
+operations. Ranks and PB IDs start at **0**; Julia array indices start at **1**.
+MPI.jl is not a dependency.
 
 ## Install
 
@@ -148,7 +149,7 @@ Wisteria's aliases select the tested installation under
 The `miyabi-dev-c` and `miyabi-dev-g` aliases select the developer-recommended
 development installation under `/work/share/waitio-rt/opt/waitio`. Use these
 aliases for that build; its 360-byte request layout differs from the older
-module installation. The original `miyabi-c` and `miyabi-g` aliases still select
+module installation. The `miyabi-c` and `miyabi-g` aliases select
 the corresponding installation under `/work/opt/local`.
 Inspect every default without loading libraries or writing files:
 
@@ -162,8 +163,9 @@ WaitIO.site_defaults("wisteria-odyssey")
 The aliases use installation paths verified in November 2026. Re-run setup after
 site upgrades to check compatibility. `WAITIO_LIB` and `WAITIO_INC` do not override
 alias paths. To use a relocated installation,
-pass explicit `library_dir` and `include_dir` keywords; an unsupported ABI still
-fails validation. Full `libwaitio`/`libwaitio_mpi` paths can replace the default pair.
+pass explicit `library_dir` and `include_dir` keywords. Setup checks the new
+paths against the selected ABI profile. Full `libwaitio`/`libwaitio_mpi` paths
+can replace the default pair.
 
 By default, setup saves through **Preferences.jl** in the active project's local
 preferences (`LocalPreferences.toml`, or an existing `JuliaLocalPreferences.toml`).
@@ -187,7 +189,7 @@ Without an alias, `WaitIO.use_system_library()` discovers libraries from
 `WAITIO_LIB` and headers from `WAITIO_INC`. Multiple pairs require a `variant`
 such as `"intel"` or `"nvidia"`, or both explicit library paths. The site test
 jobs use `WAITIO_COMM_TYPE=socket`. Site aliases select library paths and ABI
-profiles; they do not replace the installed communication functions.
+profiles. Communication uses the installed native functions.
 
 `libwaitio_mpi` is WaitIO's collective communication library, not MPI's `libmpi.so`.
 Headers (`waitio.h`, `waitio_mpi.h`, `waitio-lib.h`) are required for ABI validation.
@@ -199,8 +201,8 @@ generated `config/*.toml`, and local depot directories.
 
 Use the same application, `Project.toml`, and `Manifest.toml` on both systems.
 Select a complete configuration file in each job instead of overwriting shared
-project preferences. The following setup commands run on the respective target
-systems after loading their matching MPI and WaitIO modules:
+project preferences. Run the following setup commands on the respective target
+systems after loading MPI and setting the development library paths described above:
 
 ```julia
 # Miyabi-G: run once with WAITIO_COMM_TYPE=socket
@@ -246,7 +248,8 @@ file. A trailing `:` in `JULIA_DEPOT_PATH` retains Julia's system depots; it doe
 not retain the usual user depot. An offline site can append a prepared read-only
 depot containing the required package sources. The
 [shared-project test templates](test/native/miyabi/README.md) use that arrangement.
-The calculation itself needs only `using WaitIO; WaitIO.Init()` before communication.
+The application loads WaitIO with `using WaitIO` and calls `WaitIO.Init()`
+before communication.
 Both peers must use compatible WaitIO protocols; serialized Julia objects also
 require matching Julia versions and type definitions.
 
@@ -328,6 +331,22 @@ supported installation. If validation fails after a site upgrade, check the load
 modules and selected paths before running your application. Details for additional
 installations are in the [library compatibility guide](docs/COMPILER_FREE.md).
 
+## Runnable examples
+
+The [examples guide](examples/README.md) covers setup, launch commands, expected
+results, and these complete programs:
+
+| Example | Participants | What it demonstrates |
+| --- | --- | --- |
+| [Array exchange](examples/exchange.jl) | Julia/Julia | Nonblocking send/receive and completion |
+| [Collectives](examples/collectives.jl) | Julia/Julia | Broadcast, sum, gather/scatter, variable counts |
+| [Custom objects](examples/objects.jl) | Julia/Julia | A struct with a matrix and dictionary |
+| [C peer](examples/exchange.c) with `exchange.jl` | C/Julia | The same byte protocol across languages |
+
+Start with array exchange. Run one example per pair of jobs, with one MPI process
+in each parallel block. The broad scripts under `test/native/` are diagnostics,
+not the entry point for these examples.
+
 ## Run two communicating jobs
 
 Configure and launch **both** participants using the site's WaitIO job procedure.
@@ -347,7 +366,8 @@ mpiexec -n 1 julia --project=/path/to/project exchange.jl
 ```
 
 The launcher command alone is not a complete batch script. Use the
-[Miyabi paired PBS templates](test/native/miyabi/README.md) or the
+[example launch instructions](examples/README.md#launch-on-the-two-systems),
+[Miyabi paired PBS diagnostics](test/native/miyabi/README.md), or the
 [Wisteria tutorial](https://www.cc.u-tokyo.ac.jp/events/lectures/236/20241030-2.pdf)
 for scheduling and rendezvous setup. Both jobs must be running for communication
 to complete.
@@ -475,9 +495,9 @@ count, root, operation, memory layout, and collective order.
 Ordinary collectives call the corresponding installed WaitIO C function.
 For example, `WaitIO.Allreduce!` with `Float64` buffers and `WaitIO.SUM` calls
 `waitio_mpi_allreduce` with `WAITIO_MPI_DOUBLE` and `WAITIO_MPI_SUM`. The C peer
-calls that same native collective. `WaitIO.Barrier` calls `waitio_mpi_barrier`;
-it does not substitute an allreduce. Correctness also depends on the installed
-library: a native barrier defect is not repaired by this wrapper.
+calls that same native collective. `WaitIO.Barrier` calls `waitio_mpi_barrier`
+and inherits its behavior. Check synchronization with the installed library
+before relying on it in an application.
 
 Reductions require a native datatype and operation. `Int8` and `UInt8` use native
 `WAITIO_MPI_CHAR`, whose signedness follows the C library build and may differ
@@ -509,6 +529,7 @@ Use `WaitIO.Extensions` when all participants agree to its collective protocols:
 # Every participant uses this extension, rather than a native C allreduce.
 values = ComplexF64[1 + 2im]
 WaitIO.Extensions.Allreduce!(values, WaitIO.SUM, comm)
+score = Float64(WaitIO.Comm_rank(comm))
 best = [WaitIO.ValueLoc(score, Int32(WaitIO.Comm_rank(comm)))]
 WaitIO.Extensions.Allreduce!(best, WaitIO.MAXLOC, comm)
 ```
@@ -571,7 +592,7 @@ behavior depend on the installed WaitIO build.
 - GPU buffers, RDMA, multi-rank PBs, Fortran peers, and performance are outside
   this native interoperability verification.
 
-Application job templates are available for [Miyabi](test/native/miyabi/README.md)
+Diagnostic job templates are available for [Miyabi](test/native/miyabi/README.md)
 and [Wisteria](test/native/wisteria/README.md). The independent
 [C/Julia reference programs](test/native/reference/README.md) can be run against
 the installation available to you.
@@ -585,8 +606,6 @@ algorithm is substituted. `capabilities()` reports the actual available symbols.
 Callers manage raw pointers, buffer lifetimes, and error handling. The 80 wrapper
 names do not imply that every installation exports all 80 functions.
 
-Older `miyabi_compat` and `native_fixes` settings are accepted for config migration
-but ignored with a warning. Native functions are never replaced by these settings.
 High-level `Wait`/`Waitall` poll individual managed requests to retain buffer
 ownership and allow Julia tasks to progress; they do not expose native status
 arrays. Use `API.waitio_mpi_waitall` with a contiguous native request array when

@@ -1,0 +1,64 @@
+name: Julia tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        julia-version: ['1.10', '1.11', '1.12']
+    env:
+      CC: /nonexistent/cc
+      CXX: /nonexistent/cxx
+      MPICC: /nonexistent/mpicc
+      JULIA_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: ${{ matrix.julia-version }}
+      - name: Test without site libraries or a C compiler
+        run: julia --startup-file=no --project=. -e 'using Pkg; Pkg.test()'
+
+  reference-tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Test C/Julia result comparison and process orchestration
+        run: python3 -m unittest discover -s test/native/reference -p 'test_*.py' -v
+
+  native-dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        julia-version: ['1.10', '1.11', '1.12']
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: ${{ matrix.julia-version }}
+      - name: Install Julia dependencies
+        run: julia --startup-file=no --project=. -e 'using Pkg; Pkg.instantiate()'
+      - name: Check exact C symbols and returned status values
+        run: |
+          cc -shared -fPIC -o "$RUNNER_TEMP/waitio-dispatch.so" test/native/dispatch/symbols.c
+          julia --startup-file=no --project=. test/native/dispatch/check.jl "$RUNNER_TEMP/waitio-dispatch.so"

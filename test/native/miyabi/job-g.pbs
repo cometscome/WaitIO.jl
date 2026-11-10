@@ -1,0 +1,12 @@
+#!/bin/bash -l
+#PBS -N CHANGE_ME_PAIR
+#PBS -q debug-g
+#PBS -l select=1:mpiprocs=1:ompthreads=1
+#PBS -l walltime=00:15:00
+#PBS -W group_list=CHANGE_ME_PROJECT
+#PBS -j oe
+#PBS -m n
+#PBS -r n
+set -e
+cd "${PBS_O_WORKDIR:?}"
+bash ./run-peer.sh g

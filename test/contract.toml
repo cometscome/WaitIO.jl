@@ -1,0 +1,482 @@
+# Independent contract transcribed from the Wisteria public C headers, 2026-10-29.
+# Do not generate this contract from src/api.jl: it is the independent ABI oracle.
+
+[[function]]
+name = "waitio_sock_rawread"
+result = "int"
+arguments = ["int", "void *", "int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_sock_rawwrite"
+result = "int"
+arguments = ["int", "void *", "int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_sock_blockwrite"
+result = "int"
+arguments = ["int", "char *", "int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_sock_blockread"
+result = "int"
+arguments = ["int", "char *", "int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_sock_setup"
+result = "int"
+arguments = ["int", "int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_setup_epoll"
+result = "int"
+arguments = []
+header = "waitio.h"
+
+[[function]]
+name = "waitio_add_epoll"
+result = "int"
+arguments = ["int", "unsigned int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_connect_all"
+result = "int"
+arguments = ["waitio_group_t"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_isend"
+result = "int"
+arguments = ["waitio_group_t", "int", "char *", "size_t", "waitio_tag_t", "waitio_req_t *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_irecv"
+result = "int"
+arguments = ["waitio_group_t", "int", "char *", "size_t", "waitio_tag_t", "waitio_req_t *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_wait"
+result = "int"
+arguments = ["waitio_req_t *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_test"
+result = "int"
+arguments = ["waitio_req_t *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_init"
+result = "int"
+arguments = ["int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_finalize"
+result = "int"
+arguments = []
+header = "waitio.h"
+
+[[function]]
+name = "waitio_get_nprocs"
+result = "int"
+arguments = ["int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_create_group"
+result = "waitio_group_t"
+arguments = ["int", "waitio_filter_func_t *", "int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_pb_size"
+result = "int"
+arguments = ["int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_pb_rank"
+result = "int"
+arguments = ["int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_pb_hostinfo"
+result = "int"
+arguments = ["int", "int", "int *", "int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_group_rank"
+result = "int"
+arguments = ["waitio_group_t", "int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_group_size"
+result = "int"
+arguments = ["waitio_group_t", "int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_group_hostinfo"
+result = "int"
+arguments = ["waitio_group_t", "int", "int *", "int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_group_ismember"
+result = "int"
+arguments = ["waitio_group_t"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_create_group_wranks"
+result = "waitio_group_t"
+arguments = ["int", "int * *", "int *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_register_mem"
+result = "void"
+arguments = ["char *", "int", "char **"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_unregister_mem"
+result = "void"
+arguments = ["char *"]
+header = "waitio.h"
+
+[[function]]
+name = "truef"
+result = "int"
+arguments = ["int", "int"]
+header = "waitio.h"
+
+[[function]]
+name = "headf"
+result = "int"
+arguments = ["int", "int"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_free"
+result = "void"
+arguments = ["void *"]
+header = "waitio.h"
+
+[[function]]
+name = "waitio_mpi_bcast_layered"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_reduce_layered"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_allreduce_layered"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_bcast_Nnary"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_reduce_Nnary"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_allreduce_Nnary"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_gather_Nnary"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_allgather_Nnary"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_scatter_Nnary"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_do_init"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_do_reduce"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_isend"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm", "WAITIO_MPI_Request *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Isend"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm", "WAITIO_MPI_Request *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_irecv"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm", "WAITIO_MPI_Request *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Irecv"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm", "WAITIO_MPI_Request *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_send"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Send"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_recv"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Recv"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_reduce"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Reduce"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_bcast"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Bcast"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_allreduce"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Allreduce"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_waitall"
+result = "int"
+arguments = ["int", "WAITIO_MPI_Request *", "int *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Waitall"
+result = "int"
+arguments = ["int", "WAITIO_MPI_Request *", "int *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_create_universe"
+result = "int"
+arguments = ["WAITIO_MPI_Comm *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_create_universe_pbhead"
+result = "int"
+arguments = ["WAITIO_MPI_Comm *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_gather"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Gather"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_allgather"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Allgather"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_scatter"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Scatter"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_scatterv"
+result = "int"
+arguments = ["const void *", "const int *", "const int *", "WAITIO_MPI_Datatype", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Scatterv"
+result = "int"
+arguments = ["const void *", "const int *", "const int *", "WAITIO_MPI_Datatype", "void *", "int", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_gatherv"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "void *", "const int *", "const int *", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Gatherv"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "void *", "const int *", "const int *", "WAITIO_MPI_Datatype", "int", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_allgatherv"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "void *", "const int *", "const int *", "WAITIO_MPI_Datatype", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Allgatherv"
+result = "int"
+arguments = ["const void *", "int", "WAITIO_MPI_Datatype", "void *", "const int *", "const int *", "WAITIO_MPI_Datatype", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_scan"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Scan"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_exscan"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Exscan"
+result = "int"
+arguments = ["const void *", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Op", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_alltoall"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Alltoall"
+result = "int"
+arguments = ["void *", "int", "WAITIO_MPI_Datatype", "void *", "int", "WAITIO_MPI_Datatype", "WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_type_size"
+result = "int"
+arguments = ["WAITIO_MPI_Datatype", "int *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Type_size"
+result = "int"
+arguments = ["WAITIO_MPI_Datatype", "int *"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "waitio_mpi_barrier"
+result = "int"
+arguments = ["WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"
+
+[[function]]
+name = "WAITIO_MPI_Barrier"
+result = "int"
+arguments = ["WAITIO_MPI_Comm"]
+header = "waitio_mpi.h"

@@ -1,0 +1,11 @@
+#!/bin/bash
+#PJM -N WaitIO-OA
+#PJM -L rscgrp=coupler-a
+#PJM -L node=1
+#PJM --mpi proc=1
+#PJM -L elapse=00:10:00
+#PJM -g CHANGE_ME_PROJECT
+#PJM -j
+set -euo pipefail
+cd "${PJM_O_WORKDIR:-$PWD}"
+bash source/test/native/wisteria/run-oa.sh a

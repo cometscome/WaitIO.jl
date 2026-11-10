@@ -1,0 +1,13 @@
+#!/bin/bash -l
+#PBS -N CHANGE_ME_PAIR
+#PBS -q debug-c
+#PBS -l select=1:mpiprocs=1:ompthreads=1
+#PBS -l walltime=00:15:00
+#PBS -W group_list=CHANGE_ME_PROJECT
+#PBS -j oe
+#PBS -m n
+#PBS -r n
+set -e
+cd "${PBS_O_WORKDIR:?}"
+export WAITIO_JULIA_C_BIN="CHANGE_ME_JULIA_1_12_6_X86_64_BIN"
+bash ./run-peer.sh c

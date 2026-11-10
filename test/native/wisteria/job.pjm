@@ -1,0 +1,43 @@
+#!/bin/bash
+#PJM -N WaitIO-Julia
+#PJM -L rscgrp=debug-a
+#PJM -L node=1
+#PJM --mpi proc=2
+#PJM -L elapse=00:10:00
+#PJM -g CHANGE_ME_PROJECT
+#PJM -j
+set -euo pipefail
+cd "${PJM_O_WORKDIR:-$PWD}"
+trap 'rc=$?; printf "%s\n" "$rc" > exit.txt' EXIT
+module purge
+module load intel/2023.0.0 impi/2021.8.0 waitio/1.0
+export WAITIO_LIB=/work/share/waitio-rt/opt/waitio/lib
+export WAITIO_INC=/work/share/waitio-rt/opt/waitio/include
+export LD_LIBRARY_PATH="$WAITIO_LIB:/usr/ofed/lib:${LD_LIBRARY_PATH:-}"
+export JULIA_LOAD_PATH='@:@stdlib'
+export JULIA_DEPOT_PATH="$PWD/depot:$PWD/depot-shared:"
+export JULIA_NUM_THREADS=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 JULIA_PKG_OFFLINE=true
+export CC=/no-c-compiler CXX=/no-cxx-compiler MPICC=/no-mpi-compiler
+export WAITIO_NPB=2 WAITIO_COMM_TYPE=socket
+export WAITIO_MASTER_HOST=$(hostname)
+export WAITIO_MASTER_PORT=23770 WAITIO_HOST_POSTFIX=''
+unset WAITIO_JL_CONFIG WAITIO_JL_LIBWAITIO WAITIO_JL_LIBWAITIO_MPI WAITIO_JL_INCLUDE_DIR WAITIO_JL_ABI_PROFILE
+julia_bin="$PWD/julia-1.12.6/bin/julia"
+project="$PWD/source"
+"$julia_bin" --startup-file=no --project="$project" "$project/test/native/wisteria/setup.jl"
+# Fresh process must obtain the saved values through Preferences.jl.
+"$julia_bin" --startup-file=no --project="$project" -e 'using WaitIO, Test; i=WaitIO.configuration_info(); @test i.source.kind=="preferences"; @test !i.config.native_fixes; @test i.config.machine==Sys.MACHINE; @test WaitIO.check_library().loaded; println("preferences_reload_PASS")'
+sha256sum "$project/Project.toml" "$project/Manifest.toml" "$project/LocalPreferences.toml" config-0.toml config-1.toml > before.sha256
+for role in 0 1; do
+    WAITIO_PBID=$role WAITIO_JL_CONFIG="$PWD/config-$role.toml" \
+        timeout --kill-after=10s 300s mpiexec.hydra -np 1 "$julia_bin" --startup-file=no \
+        --project="$project" "$project/test/native/wisteria/peer.jl" > "peer-$role.log" 2>&1 &
+    if [[ "$role" == 0 ]]; then first_pid=$!; else second_pid=$!; fi
+done
+first_rc=0; second_rc=0
+wait "$first_pid" || first_rc=$?
+wait "$second_pid" || second_rc=$?
+printf 'peer_exit_codes=%s,%s\n' "$first_rc" "$second_rc"
+[[ "$first_rc" == 0 && "$second_rc" == 0 ]]
+sha256sum --check before.sha256
+printf 'job_completed=yes\n'

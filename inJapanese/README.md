@@ -50,7 +50,7 @@ GitHubのリポジトリからインストールします。
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/cometscome/WAITIO.jl.git")
+Pkg.add(url="https://github.com/cometscome/WaitIO.jl.git")
 ```
 
 `using WaitIO` でパッケージを読み込みます。

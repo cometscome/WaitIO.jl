@@ -102,7 +102,7 @@ Install directly from this repository:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/cometscome/WAITIO.jl.git")
+Pkg.add(url="https://github.com/cometscome/WaitIO.jl.git")
 ```
 
 Load the package with `using WaitIO`.
